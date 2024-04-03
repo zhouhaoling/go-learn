@@ -15,14 +15,15 @@ import (
 )
 
 func main() {
+	//创建grpc服务
 	grpcServer := grpc.NewServer()
+	//注册服务
 	hello_grpc.RegisterHelloServiceServer(grpcServer, new(HelloServiceImpl))
-
+	pd.RegisterPubsubServiceServer(grpcServer, NewPubsubService())
 	listen, err := net.Listen("tcp", ":1234")
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	err = grpcServer.Serve(listen)
 	if err != nil {
 		log.Fatalf("服务提供失败，err:%v", err)
@@ -82,11 +83,12 @@ func (p *PubsubService) Publish(ctx context.Context, arg *pd.String) (*pd.String
 
 // Subscribe 通过Topic订阅
 func (p *PubsubService) Subscribe(arg *pd.String, stream pd.PubsubService_SubscribeServer) error {
+	//np := NewPubsubService()
+	//fmt.Println(arg.GetValue())
 	ch := p.pub.SubscriberTopic(func(v interface{}) bool {
 		if key, ok := v.(string); ok {
-			if strings.HasPrefix(key, arg.GetValue()) {
-				return true
-			}
+			//fmt.Println("判断中", arg.GetValue())
+			return strings.HasPrefix(key, arg.GetValue())
 		}
 		return false
 	})
