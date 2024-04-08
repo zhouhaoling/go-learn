@@ -1,0 +1,17 @@
+//指定proto版本
+syntax = "proto3";
+
+package hello;
+option go_package="./hello";
+
+message HelloRequest{
+  string name = 1;
+}
+
+message HelloResponse{
+  string name = 1;
+}
+
+service HelloService{
+  rpc SayHello(HelloRequest) returns (HelloResponse){}
+}
